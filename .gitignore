@@ -1,0 +1,9 @@
+.direnv/*
+venv/*
+dist/*
+build/*
+__pycache__/*
+.env
+.env-local
+*.swp
+
