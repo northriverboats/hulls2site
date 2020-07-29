@@ -132,12 +132,12 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
     book = open_workbook(xlsfile)
     sh = book.sheet_by_index(0)
 
+    nulls = 0
     duplicate_guard = []
     xlshulls = []
     errors_dealer = []
@@ -148,9 +148,19 @@ def readsheet(xlsfile):
         hull, last_name, first_name, phone, \
             mailing_address, mailing_city, mailing_state, mailing_zip, \
             street_address, street_city, street_state, street_zip, \
-            date_purchased, dealer, boat_model, p = [x.value for x in sh.row_slice(rx,0 , 16)]
+            date_purchased, dealer, boat_model, date_delivered, \
+            date_finished, pin = [x.value for x in sh.row_slice(rx,0 , 18)]
 
-        debug(1, "{}\t{}\t{}".format(rx, hull, p))
+        debug(1, "{}\t{}\t{}".format(rx, hull, date_delivered))
+        # bail after 6 non hull rows, header row counts as non hull
+        if (hull[:3] != 'NRB'):
+            nulls += 1
+            if nulls > 6:
+                break
+            else:
+                continue
+
+        # deal with duplicate hull numbers
         if (hull in duplicate_guard):
             mail_results(
                  'Registrations and Dealer Inventory Sheet Duplictate',
@@ -160,39 +170,50 @@ def readsheet(xlsfile):
             continue
         else:
             duplicate_guard.append(hull)
-        if (hull[:3] == 'NRB'):
-            if p:
-                p = "%4d-%02d-%02d" % xldate_as_tuple(p, book.datemode)[:3]
-            else:
-                p = None
-            if date_purchased:
-                date_purchased = "%4d-%02d-%02d" % xldate_as_tuple(date_purchased, book.datemode)[:3]
-            else:
-                date_purchased = None
-            flag  = (not(dealer in dealerships)) * 1 + (not(boat_model in boat_models)) * 2
-            if (flag & 1 and (hull[-2:] > cutoff_year)):
-                errors_dealer.append([hull, dealer, boat_model])
-            if (flag & 2 and (hull[-2:] > cutoff_year)): # do not verify model on older boats
-                errors_boat_model.append([hull, dealer, boat_model])
-            if (re.match(pattern,hull)):
-               flag = 1
-               errors_hull.append([hull, dealer, boat_model])
-            if (flag == 0):
-                boat_model = boat_model.replace("CASCADE","Cascade")
-                boat_model = boat_model.replace("COMMANDER","Commander")
-                boat_model = boat_model.replace("OSPREY","Osprey")
-                boat_model = boat_model.replace("SCOUT","Scout")
-                boat_model = boat_model.replace("SEAHAWK CUDDY", "Seahawk Cuddy")
-                boat_model = boat_model.replace("SEAHAWK HT", "Seahawk Hardtop")
-                boat_model = boat_model.replace("SEAHAWK INBOARD", "Seahawk Inboard")
-                boat_model = boat_model.replace("SEAHAWK","Seahawk")
-                boat_model = boat_model.replace("VOYAGER PILOT HOUSE","Voyager Pilot House")
-                boat_model = boat_model.replace("VOYAGER WALK AROUND","Voyager Walk Around")
-                xlshulls.append([hull[:3] + ' ' + hull[3:8] + ' ' + hull[8:], dealer.title(), boat_model,
-                    last_name, first_name, phone,
-                    mailing_address, mailing_city, mailing_state, mailing_zip,
-                    street_address, street_city, street_state, street_zip,
-                    date_purchased, p])
+
+        #clean up dates
+        if date_delivered:
+            date_delivered = "%4d-%02d-%02d" % xldate_as_tuple(date_delivered, book.datemode)[:3]
+        else:
+            date_delivered = None
+        if date_finished:
+            date_finished = "%4d-%02d-%02d" % xldate_as_tuple(date_finished, book.datemode)[:3]
+        else:
+            date_finished = None
+        if date_purchased:
+            date_purchased = "%4d-%02d-%02d" % xldate_as_tuple(date_purchased, book.datemode)[:3]
+        else:
+            date_purchased = None
+
+        # deal with invalid dealer, boat model, or hull number
+        # flags 1=invalid dealer 2=invalid boat model 4=invalid hull number
+        flag  = (not(dealer in dealerships)) * 1 + (not(boat_model in boat_models)) * 2
+        if (flag & 1 and (hull[-2:] > cutoff_year)):
+            errors_dealer.append([hull, dealer, boat_model])
+        if (flag & 2 and (hull[-2:] > cutoff_year)): # do not verify model on older boats
+            errors_boat_model.append([hull, dealer, boat_model])
+        if (re.match(pattern,hull)):
+           flag = 4
+           errors_hull.append([hull, dealer, boat_model])
+        # if we had any errors, loop
+        if flag:
+            continue
+        # process hull and adujust model names 
+        boat_model = boat_model.replace("CASCADE","Cascade")
+        boat_model = boat_model.replace("COMMANDER","Commander")
+        boat_model = boat_model.replace("OSPREY","Osprey")
+        boat_model = boat_model.replace("SCOUT","Scout")
+        boat_model = boat_model.replace("SEAHAWK CUDDY", "Seahawk Cuddy")
+        boat_model = boat_model.replace("SEAHAWK HT", "Seahawk Hardtop")
+        boat_model = boat_model.replace("SEAHAWK INBOARD", "Seahawk Inboard")
+        boat_model = boat_model.replace("SEAHAWK","Seahawk")
+        boat_model = boat_model.replace("VOYAGER PILOT HOUSE","Voyager Pilot House")
+        boat_model = boat_model.replace("VOYAGER WALK AROUND","Voyager Walk Around")
+        xlshulls.append([hull[:3] + ' ' + hull[3:8] + ' ' + hull[8:], dealer.title(), boat_model,
+            last_name, first_name, phone,
+            mailing_address, mailing_city, mailing_state, mailing_zip,
+            street_address, street_city, street_state, street_zip,
+            date_purchased, date_delivered, date_finished, pin])
     del sh
     del book
     return xlshulls, errors_dealer, errors_boat_model, errors_hull
@@ -289,9 +310,11 @@ def format_errors(errors_dealer, errors_boat_model, errors_hull):
     return format_hull_errors(errors_hull) + format_dealer_errors(errors_dealer) + format_boat_model_errors(errors_boat_model)
 
 def push_sheet(xlshulls):
+    if dbg:
+        debug(1, "skipping pushing to server")
+        return
     silent = dbg < 1
     forwarder = bgtunnel.open(ssh_user=os.getenv('SSH_USER'), ssh_address=os.getenv('SSH_HOST'), host_port=3306, bind_port=3307, silent=silent)
-    #forwarder = bgtunnel.open(ssh_user=os.getenv('SSH_USER'), ssh_address='10.10.200.93', host_port=3306, bind_port=3306)
 
     conn= MySQLdb.connect(host='127.0.0.1', port=3307, user=os.getenv('DB_USER'), passwd=os.getenv('DB_PASS'), db=os.getenv('DB_NAME'))
 
@@ -305,13 +328,13 @@ def push_sheet(xlshulls):
         last_name, first_name, phone,
         mailing_address, mailing_city, mailing_state, mailing_zip,
         street_address, street_city, street_state, street_zip,
-        date_purchased, p
+        date_purchased, date_delivered, date_finished, pin
     ) VALUES (
         %s, %s, %s,
         %s, %s, %s,
         %s, %s, %s, %s,
         %s, %s, %s, %s,
-        %s, %s
+        %s, %s, %s, %s
     )"""
     cursor.executemany(sql,sorted(xlshulls))
     conn.commit()
@@ -322,6 +345,8 @@ def push_sheet(xlshulls):
 
 
 def mail_results(subject, body):
+    if dbg:
+        return
     mFrom = os.getenv('MAIL_FROM')
     mTo = os.getenv('MAIL_TO')
     m = Email(os.getenv('MAIL_SERVER'))
