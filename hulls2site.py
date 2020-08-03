@@ -137,12 +137,12 @@ def resource_path(relative_path):
 
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
-    book = open_workbook(xlsfile)
+    book = open_workbook(xlsfile, formatting_info=True)
     sh = book.sheet_by_index(0)
     wb = copy(book)             # to write to file  wb.save('filename')
     ws = wb.get_sheet(0)        # write-only copy   ws.write(row,col,'value'
 
-    font_size_style = xlwt.easyxf('font: name Garamond, bold off, height 240;')
+    font_size_style = xlwt.easyxf('font: name Garmond, bold off, height 240;')
     nulls = 0
     duplicate_guard = []
     xlshulls = []
