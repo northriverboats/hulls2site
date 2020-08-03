@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 from xlrd import open_workbook, XLRDError, xldate_as_tuple
+import xlwt
 import datetime
 import bgtunnel
 import MySQLdb
 import sys
 import re
 import click
+from xlutils.copy import copy
+from hashlib import md5
 from emailer import *
 from dotenv import load_dotenv
 
@@ -136,13 +139,17 @@ def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
     book = open_workbook(xlsfile)
     sh = book.sheet_by_index(0)
+    wb = copy(book)             # to write to file  wb.save('filename')
+    ws = wb.get_sheet(0)        # write-only copy   ws.write(row,col,'value'
 
+    font_size_style = xlwt.easyxf('font: name Garamond, bold off, height 240;')
     nulls = 0
     duplicate_guard = []
     xlshulls = []
     errors_dealer = []
     errors_boat_model = []
     errors_hull = []
+    changed = False  # write file back out if PIN is written
 
     for rx in range(sh.nrows):
         hull, last_name, first_name, phone, \
@@ -170,6 +177,13 @@ def readsheet(xlsfile):
             continue
         else:
             duplicate_guard.append(hull)
+
+        # pin
+        if not pin:
+            changed = True
+            pin = "{:04.0f}".format(int(md5(hull.encode()).hexdigest()[:9],16)%10000)
+            ws.write(rx, 17, pin, font_size_style)
+
 
         #clean up dates
         if date_delivered:
@@ -214,8 +228,14 @@ def readsheet(xlsfile):
             mailing_address, mailing_city, mailing_state, mailing_zip,
             street_address, street_city, street_state, street_zip,
             date_purchased, date_delivered, date_finished, pin])
+    if (changed and not dbg):
+        try:
+            wb.save(xlsfile)
+        except OSError:
+            pass
     del sh
     del book
+    del wb
     return xlshulls, errors_dealer, errors_boat_model, errors_hull
 
 
