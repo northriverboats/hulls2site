@@ -156,7 +156,7 @@ def readsheet(xlsfile):
             mailing_address, mailing_city, mailing_state, mailing_zip, \
             street_address, street_city, street_state, street_zip, \
             date_purchased, dealer, boat_model, date_delivered, \
-            date_finished, pin = [x.value for x in sh.row_slice(rx,0 , 18)]
+            date_finished, pin, opr, css = [x.value for x in sh.row_slice(rx,0 , 20)]
 
         debug(1, "{}\t{}\t{}".format(rx, hull, date_delivered))
         # bail after 6 non hull rows, header row counts as non hull
@@ -227,7 +227,7 @@ def readsheet(xlsfile):
             last_name, first_name, phone,
             mailing_address, mailing_city, mailing_state, mailing_zip,
             street_address, street_city, street_state, street_zip,
-            date_purchased, date_delivered, date_finished, pin])
+            date_purchased, date_delivered, date_finished, pin, opr, css])
     if (changed and not dbg):
         try:
             wb.save(xlsfile)
@@ -348,13 +348,15 @@ def push_sheet(xlshulls):
         last_name, first_name, phone,
         mailing_address, mailing_city, mailing_state, mailing_zip,
         street_address, street_city, street_state, street_zip,
-        date_purchased, date_delivered, date_finished, pin
+        date_purchased, date_delivered, date_finished, pin,
+        opr, css
     ) VALUES (
         %s, %s, %s,
         %s, %s, %s,
         %s, %s, %s, %s,
         %s, %s, %s, %s,
-        %s, %s, %s, %s
+        %s, %s, %s, %s,
+        %s, %s
     )"""
     cursor.executemany(sql,sorted(xlshulls))
     conn.commit()
