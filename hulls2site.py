@@ -292,7 +292,7 @@ def format_dealer_errors(errors_dealer):
         %s%s</td>
         %s%s</td>
         %s%s</td>
-      </tr>\n""" %  (tr,td,item[0],td,item[1],td,item[2])
+      </tr>\n""" %  (tr,td,item[0],td,item[2],td,item[1])
         output += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
     return output
 
