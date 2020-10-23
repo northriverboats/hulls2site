@@ -155,10 +155,12 @@ def readsheet(xlsfile):
         hull, last_name, first_name, phone, \
             mailing_address, mailing_city, mailing_state, mailing_zip, \
             street_address, street_city, street_state, street_zip, \
+            email_address, \
             date_purchased, dealer, boat_model, date_delivered, \
-            date_finished, pin, opr, css = [x.value for x in sh.row_slice(rx,0 , 20)]
+            date_finished, pin, opr, css = [x.value for x in sh.row_slice(rx,0, 21)]
 
-        debug(1, "{}\t{}\t{}".format(rx, hull, date_delivered))
+        debug(1, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
+        debug(1, "Date Finished: {}".format(date_finished))
         # bail after 6 non hull rows, header row counts as non hull
         if (hull[:3] != 'NRB'):
             nulls += 1
@@ -182,8 +184,7 @@ def readsheet(xlsfile):
         if not pin:
             changed = True
             pin = "{:04.0f}".format(int(md5(hull.encode()).hexdigest()[:9],16)%10000)
-            ws.write(rx, 17, pin, font_size_style)
-
+            ws.write(rx, 18, pin, font_size_style)
 
         #clean up dates
         if date_delivered:
@@ -227,6 +228,7 @@ def readsheet(xlsfile):
             last_name, first_name, phone,
             mailing_address, mailing_city, mailing_state, mailing_zip,
             street_address, street_city, street_state, street_zip,
+            email_address,
             date_purchased, date_delivered, date_finished, pin, opr, css])
     if (changed and not dbg):
         try:
@@ -334,9 +336,22 @@ def push_sheet(xlshulls):
         debug(1, "skipping pushing to server")
         return
     silent = dbg < 1
-    forwarder = bgtunnel.open(ssh_user=os.getenv('SSH_USER'), ssh_address=os.getenv('SSH_HOST'), host_port=3306, bind_port=3307, silent=silent)
+    forwarder = bgtunnel.open(
+        ssh_user=os.getenv('SSH_USER'),
+        ssh_address=os.getenv('SSH_HOST'),
+        ssh_port=os.getenv('SSH_PORT'),
+        host_port=3306,
+        bind_port=3307,
+        silent=silent
+    )
 
-    conn= MySQLdb.connect(host='127.0.0.1', port=3307, user=os.getenv('DB_USER'), passwd=os.getenv('DB_PASS'), db=os.getenv('DB_NAME'))
+    conn= MySQLdb.connect(
+        host='127.0.0.1',
+        port=3307,
+        user=os.getenv('DB_USER'),
+        passwd=os.getenv('DB_PASS'),
+        db=os.getenv('DB_NAME')
+    )
 
     conn.query("""TRUNCATE TABLE wp_nrb_hulls""")
     r=conn.use_result()
@@ -348,6 +363,7 @@ def push_sheet(xlshulls):
         last_name, first_name, phone,
         mailing_address, mailing_city, mailing_state, mailing_zip,
         street_address, street_city, street_state, street_zip,
+        email_address,
         date_purchased, date_delivered, date_finished, pin,
         opr, css
     ) VALUES (
@@ -355,6 +371,7 @@ def push_sheet(xlshulls):
         %s, %s, %s,
         %s, %s, %s, %s,
         %s, %s, %s, %s,
+        %s,
         %s, %s, %s, %s,
         %s, %s
     )"""
