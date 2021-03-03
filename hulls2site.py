@@ -11,6 +11,7 @@ import click
 from xlutils.copy import copy
 from hashlib import md5
 from emailer import *
+from mysqltunnel import TunnelSQL
 from dotenv import load_dotenv
 
 cutoff_year = '14'
@@ -336,27 +337,10 @@ def push_sheet(xlshulls):
         debug(1, "skipping pushing to server")
         return
     silent = dbg < 1
-    forwarder = bgtunnel.open(
-        ssh_user=os.getenv('SSH_USER'),
-        ssh_address=os.getenv('SSH_HOST'),
-        ssh_port=os.getenv('SSH_PORT'),
-        host_port=3306,
-        bind_port=3307,
-        silent=silent
-    )
+    db = TunnelSQL(silent, cursor='DictCursor')
+    sql = """TRUNCATE TABLE wp_nrb_hulls"""
+    _ = db.execute(sql)
 
-    conn= MySQLdb.connect(
-        host='127.0.0.1',
-        port=3307,
-        user=os.getenv('DB_USER'),
-        passwd=os.getenv('DB_PASS'),
-        db=os.getenv('DB_NAME')
-    )
-
-    conn.query("""TRUNCATE TABLE wp_nrb_hulls""")
-    r=conn.use_result()
-
-    cursor = conn.cursor()
     sql = """
     INSERT INTO wp_nrb_hulls (
         hull_serial_number, dealership, model,
@@ -375,12 +359,8 @@ def push_sheet(xlshulls):
         %s, %s, %s, %s,
         %s, %s
     )"""
-    cursor.executemany(sql,sorted(xlshulls))
-    conn.commit()
-
-    cursor.close()
-    conn.close()
-    forwarder.close()
+    db.executemany(sql, sorted(xlshulls))
+    db.close()
 
 
 def mail_results(subject, body):
