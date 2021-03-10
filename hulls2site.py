@@ -6,12 +6,13 @@ import datetime
 import bgtunnel
 import MySQLdb
 import sys
+import os
 import re
 import click
 from xlutils.copy import copy
 from hashlib import md5
-from emailer import *
-from mysqltunnel import TunnelSQL
+from emailer.emailer import Email
+from mysql_tunnel.mysql_tunnel import TunnelSQL
 from dotenv import load_dotenv
 
 cutoff_year = '14'
@@ -396,7 +397,7 @@ def main(debug, verbose):
         bundle_dir = os.path.dirname(os.path.abspath(__file__))
 
     # load environmental variables
-    load_dotenv(bundle_dir + "/.env-local")
+    load_dotenv(bundle_dir + "/.env")
 
     xlsfile = os.getenv('XLSFILE')
 
