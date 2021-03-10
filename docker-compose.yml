@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  python-app:
+    image: nrb-python
+    volumes:
+      - ./:/app
+      - /samba/shares/common/Warranty Registrations/:/output
+    entrypoint: [python, hulls2site.py]
