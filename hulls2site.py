@@ -29,6 +29,7 @@ dealerships = (
     'ENNS BROTHERS',
     'ERIE MARINE',
     'IDAHO MARINE',
+    'HAMPTON MARINE',
     'MAXXUM MARINE',
     'PRINCE GEORGE MOTORSPORTS',
     'PORT BOAT HOUSE',
