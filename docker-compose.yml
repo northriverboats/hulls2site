@@ -4,9 +4,9 @@ services:
   python-app:
     image: nrb-python
     environment:
-      - HELP=${HELP}
-      - VERBOSE=${VERBOSE}
-      - DEBUG=${DEBUG}
+      - HELP=${HELP}        # flag  show parameter help
+      - VERBOSE=${VERBOSE}  # int   verbosity level 0-3
+      - DEBUG=${DEBUG}      # flag  do not save output/dry run
     volumes:
       - ./:/app
       - /samba/shares/recreation/Warranty Registrations/:/output
