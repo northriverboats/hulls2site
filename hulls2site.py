@@ -11,8 +11,8 @@ import re
 import click
 from xlutils.copy import copy
 from hashlib import md5
-from emailer.emailer import Email
-from mysql_tunnel.mysql_tunnel import TunnelSQL
+from emailer import Email
+from mysql_tunnel import TunnelSQL
 from dotenv import load_dotenv
 
 cutoff_year = '14'
@@ -124,8 +124,9 @@ Levels
 3 = very verbose outupt
 """
 dbg = 0
+output = 0
 def debug(level, text):
-    if dbg > (level -1):
+    if output > (level -1):
         print(text)
 
 #### HEAR BE DRAGONS
@@ -382,13 +383,13 @@ def mail_results(subject, body):
     m.send()
 
 @click.command()
-@click.option('--debug', '-d', is_flag=True, help='show debug output')
-@click.option('--verbose', '-v', default=1, type=int, help='verbosity level 0-3')
+@click.option('--debug', '-d', is_flag=True, help='show debug output/do not'
+              'save output')
+@click.option('--verbose', '-v', default=0, type=int, help='verbosity level 0-3')
 def main(debug, verbose):
     global xlsfile
     global dbg
-    if debug:
-        dbg = verbose
+    global output
 
     # set python environment
     if getattr(sys, 'frozen', False):
@@ -400,7 +401,28 @@ def main(debug, verbose):
     # load environmental variables
     load_dotenv(bundle_dir + "/.env")
 
+    if os.getenv('HELP'):
+      with click.get_current_context() as ctx:
+        click.echo(ctx.get_help())
+        ctx.exit()
+
+    if os.getenv('VERBOSE'):
+        output = int(os.getenv('VERBOSE'))
+    else:
+        output = verbose
+
+    if os.getenv('DEBUG'):
+        dbg = [False, True][os.getenv('DEBUG') != ""]
+    else:
+        dbg = debug
+
     xlsfile = os.getenv('XLSFILE')
+
+    if output > 0:
+        try:
+            print(f"{xlsfile} is {os.path.getsize(xlsfile)} bytes in size")
+        except OSError as e:
+            print(f"{xlsfile} is not found")
 
     try:
         xlshulls, errors_dealer, errors_boat_model, errors_hull = readsheet(xlsfile)
@@ -418,6 +440,7 @@ def main(debug, verbose):
             'Registrations and Dealer Inventory Sheet Processing Error',
             '<p>Website can not be updated due to error on sheet:<br />\n' + e + '</p>'
         )
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
