@@ -123,9 +123,9 @@ Levels
 2 = verbose outupt
 3 = very verbose outupt
 """
-dbg = 0
+dbgs = 0
 verbosity = 0
-def debug(level, text):
+def dbg(level, text):
     if verbosity > (level -1):
         print(text)
 
@@ -180,8 +180,8 @@ def readsheet(xlsfile):
             date_purchased, dealer, boat_model, date_delivered, \
             date_finished, pin, opr, css = [x.value for x in sh.row_slice(rx,0, 21)]
 
-        debug(1, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
-        debug(1, "Date Finished: {}".format(date_finished))
+        dbg(1, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
+        dbg(1, "Date Finished: {}".format(date_finished))
         # bail after 6 non hull rows, header row counts as non hull
         if (hull[:3] != 'NRB'):
             nulls += 1
@@ -196,7 +196,7 @@ def readsheet(xlsfile):
                  'Registrations and Dealer Inventory Sheet Duplictate',
                  '<p>Hull ' + hull + ' is a duplicate\n</p>'
             )
-            debug(1, "Hull {} is a duplicate".format(hull))
+            dbg(1, "Hull {} is a duplicate".format(hull))
             continue
         else:
             duplicate_guard.append(hull)
@@ -251,7 +251,7 @@ def readsheet(xlsfile):
             street_address, street_city, street_state, street_zip,
             email_address,
             date_purchased, date_delivered, date_finished, pin, opr, css])
-    if (changed and not dbg):
+    if (changed and not dbgs):
         try:
             wb.save(xlsfile)
         except OSError:
@@ -353,10 +353,10 @@ def format_errors(errors_dealer, errors_boat_model, errors_hull):
     return format_hull_errors(errors_hull) + format_dealer_errors(errors_dealer) + format_boat_model_errors(errors_boat_model)
 
 def push_sheet(xlshulls):
-    if dbg:
-        debug(1, "skipping pushing to server")
+    if dbgs:
+        dbg(1, "skipping pushing to server")
         return
-    silent = dbg < 1
+    silent = dbgs < 1
     db = TunnelSQL(silent, cursor='DictCursor')
     sql = """TRUNCATE TABLE wp_nrb_hulls"""
     _ = db.execute(sql)
@@ -384,7 +384,7 @@ def push_sheet(xlshulls):
 
 
 def mail_results(subject, body):
-    if dbg:
+    if dbgs:
         return
     mFrom = os.getenv('MAIL_FROM')
     mTo = os.getenv('MAIL_TO')
@@ -405,7 +405,7 @@ def mail_results(subject, body):
 @click.option('--verbose', '-v', default=0, type=int, help='verbosity level 0-3')
 def main(debug, verbose):
     global xlsfile
-    global dbg
+    global dbgs
     global verbosity
 
     # set python environment
@@ -424,7 +424,7 @@ def main(debug, verbose):
         ctx.exit()
 
     verbosity = resolve_int('VERBOSE', verbose)
-    dbg = resolve_flag('DEBUG', debug)
+    dbgs = resolve_flag('DEBUG', debug)
 
     xlsfile = os.getenv('XLSFILE')
 
