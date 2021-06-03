@@ -428,8 +428,6 @@ def main(debug, verbose):
 
     xlsfile = os.getenv('XLSFILE')
 
-    print(verbosity)
-    sys.exit(0)
     if verbosity > 0:
         try:
             print(f"{xlsfile} is {os.path.getsize(xlsfile)} bytes in size")
