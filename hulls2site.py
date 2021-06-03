@@ -114,19 +114,19 @@ pattern += "(212|213|313|314|414|415|515|516|616|617|717|718|818|819|919|920|"
 pattern += "020|021|121|122|222|223|323|324|424|425|525|526|626|627|727|728|828|829|929|930"
 pattern += "030|031|131|132|232|233|333|334|434|435|535|536|636|637|737|738|838|839|939|940)$"
 xlsfile = ""
-output = ""
+verbosity = ""
 
 """
 Levels
-0 = no output
-1 = minimal output
+0 = no verbosity
+1 = minimal verbosity
 2 = verbose outupt
 3 = very verbose outupt
 """
 dbg = 0
-output = 0
+verbosity = 0
 def debug(level, text):
-    if output > (level -1):
+    if verbosity > (level -1):
         print(text)
 
 #### HEAR BE DRAGONS
@@ -138,6 +138,23 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+def resolve_flag(env_var, default):
+    """convert enviromntal variable to True False
+       return default value if no string"""
+    if os.getenv(env_var):
+        return [False, True][os.getenv(env_var) != ""]
+    return default
+
+def resolve_text(env_var, default):
+    """convert enviromntal variable to text string
+       return default value if no string"""
+    if os.getenv(env_var):
+        return os.getenv(env_var)
+    return default
+
+def resolve_int(env_var, default):
+    return int(resolve_text(env_var, default))
 
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
@@ -246,9 +263,9 @@ def readsheet(xlsfile):
 
 
 def format_hull_errors(errors_hull):
-    output = ""
+    verbosity = ""
     if (len(errors_hull)):
-        output += """<span style="font-size:2em;">Hull Errors</span>
+        verbosity += """<span style="font-size:2em;">Hull Errors</span>
     <hr style="margin-left: 0; width: 40em;">
     <table style="border-collapse: collapse;width: 40em;">
       <tr>
@@ -265,19 +282,19 @@ def format_hull_errors(errors_hull):
             else:
                tr = '<tr>'
             row = not row
-            output += """  %s
+            verbosity += """  %s
         %s%s</td>
         %s%s</td>
         %s%s</td>
       </tr>\n""" %  (tr,td,item[0],td,item[1],td,item[2])
-        output += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
-    return output
+        verbosity += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
+    return verbosity
 
 
 def format_dealer_errors(errors_dealer):
-    output = ""
+    verbosity = ""
     if (len(errors_dealer)):
-        output += """<span style="font-size:2em;">Dealer Errors</span>
+        verbosity += """<span style="font-size:2em;">Dealer Errors</span>
     <hr style="margin-left: 0; width: 40em;">
     <table style="border-collapse: collapse;width: 40em;">
       <tr>
@@ -294,19 +311,19 @@ def format_dealer_errors(errors_dealer):
             else:
                tr = '<tr>'
             row = not row
-            output += """  %s
+            verbosity += """  %s
         %s%s</td>
         %s%s</td>
         %s%s</td>
       </tr>\n""" %  (tr,td,item[0],td,item[2],td,item[1])
-        output += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
-    return output
+        verbosity += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
+    return verbosity
 
 
 def format_boat_model_errors(errors_boat_model):
-    output = ""
+    verbosity = ""
     if (len(errors_boat_model)>0):
-        output += """<span style="font-size:2em;">Model Errors</span>
+        verbosity += """<span style="font-size:2em;">Model Errors</span>
     <hr style="margin-left: 0; width: 40em;">
     <table style="border-collapse: collapse;width: 40em;">
       <tr>
@@ -323,13 +340,13 @@ def format_boat_model_errors(errors_boat_model):
             else:
                tr = '<tr>'
             row = not row
-            output += """  %s
+            verbosity += """  %s
         %s%s</td>
         %s%s</td>
         %s%s</td>
       </tr>\n""" %  (tr,td,item[0],td,item[1],td,item[2])
-        output += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
-    return output
+        verbosity += """</table>\n<p>&nbsp;</p>\n<p>&nbsp;</p>"""
+    return verbosity
 
 
 def format_errors(errors_dealer, errors_boat_model, errors_hull):
@@ -383,13 +400,13 @@ def mail_results(subject, body):
     m.send()
 
 @click.command()
-@click.option('--debug', '-d', is_flag=True, help='show debug output/do not'
-              'save output')
+@click.option('--debug', '-d', is_flag=True, help='show debug verbosity/do not'
+              'save verbosity')
 @click.option('--verbose', '-v', default=0, type=int, help='verbosity level 0-3')
 def main(debug, verbose):
     global xlsfile
     global dbg
-    global output
+    global verbosity
 
     # set python environment
     if getattr(sys, 'frozen', False):
@@ -406,19 +423,14 @@ def main(debug, verbose):
         click.echo(ctx.get_help())
         ctx.exit()
 
-    if os.getenv('VERBOSE'):
-        output = int(os.getenv('VERBOSE'))
-    else:
-        output = verbose
-
-    if os.getenv('DEBUG'):
-        dbg = [False, True][os.getenv('DEBUG') != ""]
-    else:
-        dbg = debug
+    verbosity = resolve_int('VERBOSE', verbose)
+    dbg = resolve_flag('DEBUG', debug)
 
     xlsfile = os.getenv('XLSFILE')
 
-    if output > 0:
+    print(verbosity)
+    sys.exit(0)
+    if verbosity > 0:
         try:
             print(f"{xlsfile} is {os.path.getsize(xlsfile)} bytes in size")
         except OSError as e:
