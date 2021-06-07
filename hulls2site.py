@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
-from xlrd import open_workbook, XLRDError, xldate_as_tuple
-import xlwt
-import datetime
 import bgtunnel
+import click
+import datetime
+from dotenv import load_dotenv
+from emailer import Email
+from hashlib import md5
+from mysql_tunnel import TunnelSQL
 import MySQLdb
-import sys
 import os
 import re
-import click
+import sys
+import traceback
+from xlrd import open_workbook, XLRDError, xldate_as_tuple
+import xlwt
 from xlutils.copy import copy
-from hashlib import md5
-from emailer import Email
-from mysql_tunnel import TunnelSQL
-from dotenv import load_dotenv
 
 cutoff_year = '14'
 
@@ -444,11 +445,13 @@ def main(debug, verbose):
         mail_results(
             'Registrations and Dealer Inventory Sheet is Open',
             'Registrations and Dealer Inventory Sheet is Open, website can not be updated'
+            "<br /><br /><pre>" + traceback.format_exc() + "</pre>")
         )
     except Exception as e:
         mail_results(
             'Registrations and Dealer Inventory Sheet Processing Error',
             '<p>Website can not be updated due to error on sheet:<br />\n' + e + '</p>'
+            "<br /><br /><pre>" + traceback.format_exc() + "</pre>")
         )
     sys.exit(0)
 
