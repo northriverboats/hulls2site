@@ -9,5 +9,5 @@ services:
       - DEBUG=${DEBUG}      # flag  do not save output/dry run
     volumes:
       - ./:/app
-      - /samba/shares/recreation/Warranty Registrations/:/output
+      - ${SHEET_FOLDER}:/output
     entrypoint: [python, hulls2site.py]
