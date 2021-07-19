@@ -35,6 +35,7 @@ dealerships = (
     'PRINCE GEORGE MOTORSPORTS',
     'PORT BOAT HOUSE',
     'RIVERFRONT MARINA',
+    'TEST DEALERSHIP',
     'THE BAY COMPANY',
     'VALLEY MARINE',
     'VOLGA BOAT LLC',
@@ -446,13 +447,11 @@ def main(debug, verbose):
             'Registrations and Dealer Inventory Sheet is Open',
             'Registrations and Dealer Inventory Sheet is Open, website can not be updated'
             "<br /><br /><pre>" + traceback.format_exc() + "</pre>")
-        )
     except Exception as e:
         mail_results(
             'Registrations and Dealer Inventory Sheet Processing Error',
             '<p>Website can not be updated due to error on sheet:<br />\n' + e + '</p>'
             "<br /><br /><pre>" + traceback.format_exc() + "</pre>")
-        )
     sys.exit(0)
 
 if __name__ == "__main__":
