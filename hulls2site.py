@@ -144,6 +144,7 @@ def resource_path(relative_path):
 
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
+    print(xlsfile)
     book = open_workbook(xlsfile, formatting_info=True)
     sh = book.sheet_by_index(0)
     wb = copy(book)             # to write to file  wb.save('filename')
@@ -166,8 +167,8 @@ def readsheet(xlsfile):
             date_purchased, dealer, boat_model, date_delivered, \
             date_finished, pin, opr, css = [x.value for x in sh.row_slice(rx,0, 21)]
 
-        dbg(1, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
-        dbg(1, "Date Finished: {}".format(date_finished))
+        dbg(2, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
+        dbg(2, "Date Finished: {}".format(date_finished))
         # bail after 6 non hull rows, header row counts as non hull
         if (hull[:3] != 'NRB'):
             nulls += 1
