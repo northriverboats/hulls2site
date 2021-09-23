@@ -26,6 +26,7 @@ dealerships = (
     'BOAT COUNTRY',
     'CLEMENS EUGENE',
     'CLEMENS MARINA',
+    'DRUMMONDVILLE MARINE',
     'ELEPHANT BOYS',
     'ENNS BROTHERS',
     'ERIE MARINE',
