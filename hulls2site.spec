@@ -7,7 +7,9 @@ block_cipher = None
 a = Analysis(['hulls2site.py'],
              pathex=['/home/fwarren/builds/hulls2site'],
              binaries=[],
-             datas=[],
+             datas=[
+                 ('.env','.'),
+             ],
              hiddenimports=['mysql_tunnel'],
              hookspath=[],
              hooksconfig={},
