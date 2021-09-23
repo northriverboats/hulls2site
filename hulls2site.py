@@ -142,23 +142,6 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-def resolve_flag(env_var, default):
-    """convert enviromntal variable to True False
-       return default value if no string"""
-    if os.getenv(env_var):
-        return [False, True][os.getenv(env_var) != ""]
-    return default
-
-def resolve_text(env_var, default):
-    """convert enviromntal variable to text string
-       return default value if no string"""
-    if os.getenv(env_var):
-        return os.getenv(env_var)
-    return default
-
-def resolve_int(env_var, default):
-    return int(resolve_text(env_var, default))
-
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
     book = open_workbook(xlsfile, formatting_info=True)
@@ -411,23 +394,16 @@ def main(debug, verbose):
     global dbgs
     global verbosity
 
-    # set python environment
-    if getattr(sys, 'frozen', False):
-        bundle_dir = sys._MEIPASS
-    else:
-        # we are running in a normal Python environment
-        bundle_dir = os.path.dirname(os.path.abspath(__file__))
+    verbosity = verbose
+    dbgs = debug
 
     # load environmental variables
-    load_dotenv(bundle_dir + "/.env")
+    load_dotenv(dotenv_path=resource_path("/.env"))
 
     if os.getenv('HELP'):
       with click.get_current_context() as ctx:
         click.echo(ctx.get_help())
         ctx.exit()
-
-    verbosity = resolve_int('VERBOSE', verbose)
-    dbgs = resolve_flag('DEBUG', debug)
 
     xlsfile = os.getenv('XLSFILE')
 
