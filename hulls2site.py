@@ -397,12 +397,11 @@ def main(debug, verbose):
     global xlsfile
     global dbgs
     global verbosity
-
     verbosity = verbose
     dbgs = debug
 
     # load environmental variables
-    load_dotenv(dotenv_path=resource_path("/.env"))
+    load_dotenv(dotenv_path=resource_path(".env"))
 
     if os.getenv('HELP'):
       with click.get_current_context() as ctx:
