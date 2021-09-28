@@ -159,6 +159,7 @@ def readsheet(xlsfile):
     errors_hull = []
     changed = False  # write file back out if PIN is written
 
+    dbg(2, f"Rows: {sh.nrows}")
     for rx in range(sh.nrows):
         hull, last_name, first_name, phone, \
             mailing_address, mailing_city, mailing_state, mailing_zip, \
@@ -167,8 +168,8 @@ def readsheet(xlsfile):
             date_purchased, dealer, boat_model, date_delivered, \
             date_finished, pin, opr, css = [x.value for x in sh.row_slice(rx,0, 21)]
 
-        dbg(2, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
-        dbg(2, "Date Finished: {}".format(date_finished))
+        dbg(3, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
+        dbg(3, "Date Finished: {}".format(date_finished))
         # bail after 6 non hull rows, header row counts as non hull
         if (hull[:3] != 'NRB'):
             nulls += 1
@@ -347,6 +348,7 @@ def push_sheet(xlshulls):
     db = TunnelSQL(silent, cursor='DictCursor')
     sql = """TRUNCATE TABLE wp_nrb_hulls"""
     _ = db.execute(sql)
+    dbg(2,f"Hulls to insert: {len(xlshulls)}")
 
     sql = """
     INSERT INTO wp_nrb_hulls (
@@ -367,6 +369,7 @@ def push_sheet(xlshulls):
         %s, %s
     )"""
     db.executemany(sql, sorted(xlshulls))
+    dbg(2,"Hulls Inserted")
     db.close()
 
 
