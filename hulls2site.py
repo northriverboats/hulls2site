@@ -242,6 +242,7 @@ def readsheet(xlsfile):
     if (changed and not dbgs):
         try:
             wb.save(xlsfile)
+            dbg(1, 'Registrations and Dealer Inventory Sheet Saved')
         except OSError:
             pass
     del sh
