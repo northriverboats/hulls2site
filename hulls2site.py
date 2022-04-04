@@ -92,6 +92,8 @@ boat_models = (
     "25' SEAHAWK OS",
     "25' SEAHAWK",
     "25'6 SEAHAWK CUDDY",
+    # 26
+    "26' OSPREY",
     # 27
     "27' SEAHAWK OS",
     # 29
