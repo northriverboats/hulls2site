@@ -213,12 +213,15 @@ def readsheet(xlsfile):
         # flags 1=invalid dealer 2=invalid boat model 4=invalid hull number
         flag  = (not(dealer in dealerships)) * 1 + (not(boat_model in boat_models)) * 2
         if (flag & 1 and (hull[-2:] > cutoff_year)):
+            dbg(1,f"Dealer Error: {hull[:3]} {hull[3:8]} {hull[8:]}  {dealer:25.25}  {boat_model}")
             errors_dealer.append([hull, dealer, boat_model])
         if (flag & 2 and (hull[-2:] > cutoff_year)): # do not verify model on older boats
+            dbg(1,f" Model Error: {hull[:3]} {hull[3:8]} {hull[8:]}  {dealer:25.25}  {boat_model}")
             errors_boat_model.append([hull, dealer, boat_model])
         if (re.match(pattern,hull)):
-           flag = 4
-           errors_hull.append([hull, dealer, boat_model])
+            dbg(1,f"  Hull Error: {hull[:3]} {hull[3:8]} {hull[8:]}  {dealer:25.25}  {boat_model}")
+            flag = 4
+            errors_hull.append([hull, dealer, boat_model])
         # if we had any errors, loop
         if flag:
             continue
