@@ -49,10 +49,12 @@ boat_models = (
     # 20
     "20' CASCADE",
     "20' OSPREY",
+    "20' PURSUIT",
     "20' SCOUT",
     "20' SEAHAWK",
     # 21
     "21' OSPREY",
+    "21' PURSUIT",
     "21' SCOUT",
     "21' SEAHAWK FB",
     "21' SEAHAWK",
@@ -60,6 +62,7 @@ boat_models = (
     # 22
     "22' COMMANDER",
     "22' OSPREY",
+    "22' PURSUIT",
     "22' SCOUT",
     "22' SEAHAWK FB",
     "22' SEAHAWK HT",
@@ -68,6 +71,7 @@ boat_models = (
     # 23
     "23' COMMANDER",
     "23' OSPREY",
+    "23' PURSUIT",
     "23' SCOUT",
     "23' SEAHAWK FB",
     "23' SEAHAWK HT",
