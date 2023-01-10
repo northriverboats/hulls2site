@@ -30,6 +30,7 @@ dealerships = (
     'ELEPHANT BOYS',
     'ENNS BROTHERS',
     'ERIE MARINE',
+    'GP HONDA',
     'IDAHO MARINE',
     'HAMPTON MARINE',
     'MAXXUM MARINE',
@@ -394,7 +395,7 @@ def mail_results(subject, body):
     m.setFrom(mFrom)
     for email in mTo.split(','):
         m.addRecipient(email)
-    m.addCC(os.getenv('MAIL_FROM'))
+    # m.addCC(os.getenv('MAIL_FROM'))
 
     m.setSubject(subject)
     m.setTextBody("You should not see this text in a MIME aware reader")
