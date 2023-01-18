@@ -391,16 +391,22 @@ def mail_results(subject, body):
         return
     mFrom = os.getenv('MAIL_FROM')
     mTo = os.getenv('MAIL_TO')
-    m = Email(os.getenv('MAIL_SERVER'))
-    m.setFrom(mFrom)
-    for email in mTo.split(','):
-        m.addRecipient(email)
-    # m.addCC(os.getenv('MAIL_FROM'))
 
-    m.setSubject(subject)
-    m.setTextBody("You should not see this text in a MIME aware reader")
-    m.setHtmlBody(body)
-    m.send()
+    mail = Email(os.getenv('MAIL_SERVER'))
+    mail.setPort(os.gentenv('MAIL_PORT'))
+    mail.setTLS(os.gentenv('MAIL_TLS'))
+    mail.setLogin(os.gentenv('MAIL_LOGIN'))
+    mail.setPassword(os.gentenv('MAIL_PASSWORD'))
+
+    mail.setFrom(mFrom)
+    for email in mTo.split(','):
+        mail.addRecipient(email)
+    mail.addCC(os.getenv('MAIL_FROM'))
+
+    mail.setSubject(subject)
+    mail.setTextBody("You should not see this text in a MIME aware reader")
+    mail.setHtmlBody(body)
+    mail.send()
 
 @click.command()
 @click.option('--debug', '-d', is_flag=True, help='show debug verbosity/do not'
