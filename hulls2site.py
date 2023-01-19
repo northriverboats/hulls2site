@@ -4,7 +4,7 @@ import bgtunnel
 import click
 import datetime
 from dotenv import load_dotenv
-from emailer import Email
+from emailer import mail_results as mail_results_original
 from hashlib import md5
 from mysql_tunnel import TunnelSQL
 import MySQLdb
@@ -389,24 +389,7 @@ def push_sheet(xlshulls):
 def mail_results(subject, body):
     if dbgs:
         return
-    mFrom = os.getenv('MAIL_FROM')
-    mTo = os.getenv('MAIL_TO')
-
-    mail = Email(os.getenv('MAIL_SERVER'))
-    mail.setPort(os.gentenv('MAIL_PORT'))
-    mail.setTLS(os.gentenv('MAIL_TLS'))
-    mail.setLogin(os.gentenv('MAIL_LOGIN'))
-    mail.setPassword(os.gentenv('MAIL_PASSWORD'))
-
-    mail.setFrom(mFrom)
-    for email in mTo.split(','):
-        mail.addRecipient(email)
-    mail.addCC(os.getenv('MAIL_FROM'))
-
-    mail.setSubject(subject)
-    mail.setTextBody("You should not see this text in a MIME aware reader")
-    mail.setHtmlBody(body)
-    mail.send()
+    mail_results_original(subject, body)
 
 @click.command()
 @click.option('--debug', '-d', is_flag=True, help='show debug verbosity/do not'
