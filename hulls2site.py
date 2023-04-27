@@ -34,6 +34,7 @@ dealerships = (
     'IDAHO MARINE',
     'HAMPTON MARINE',
     'MAXXUM MARINE',
+    'NORTH RIVER DEMO',
     'PARK-A-WAY',
     'PRINCE GEORGE MOTORSPORTS',
     'PORT BOAT HOUSE',
