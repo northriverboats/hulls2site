@@ -2,6 +2,7 @@ altgraph==0.17.2
 bgtunnel==0.4.1
 click==8.0.1
 emailer @ git+https://github.com/northriverboats/emailer.git
+mysql_tunnel @ git+https://github.com/northriverboats/mysql-tunnel.git
 mysqlclient==2.0.3
 pyinstaller==4.5.1
 pyinstaller-hooks-contrib==2021.3
