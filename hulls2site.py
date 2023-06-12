@@ -4,7 +4,7 @@ import bgtunnel
 import click
 import datetime
 from dotenv import load_dotenv
-from emailer import mail_results as mail_results_original
+from envelopes import Envelope
 from hashlib import md5
 from mysql_tunnel import TunnelSQL
 import MySQLdb
@@ -151,6 +151,63 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+def split_address(email_address):
+    """Return a tuple of (address, name), name may be an empty string
+       Can convert the following forms
+         exaple@example.com
+         <example@exmaple.con>
+         Example <example@example.com>
+         Example<example@example.com>
+    """
+    address = email_address.split('<')
+    if len(address) == 1:
+        return (address[0], '')
+    if address[0]:
+        return (address[1][:-1], address[0].strip())
+    return (address[1][:-1], '')
+
+def  mail_results(subject, body):
+    """ Send email with html formatted body and parameters from env"""
+    if dbgs:
+        return
+
+    envelope = Envelope(
+        from_addr=split_address(os.environ.get('MAIL_FROM')),
+        subject=subject,
+        html_body=body
+    )
+
+    # add standard recepients
+    tos = os.environ.get('MAIL_TO','').split(',')
+    if tos[0]:
+        for to in tos:
+            envelope.add_to_addr(to)
+
+    # add carbon coppies
+    ccs = os.environ.get('MAIL_CC','').split(',')
+    if ccs[0]:
+        for cc in ccs:
+            envelope.add_cc_addr(cc)
+
+    # add blind carbon copies recepients
+    bccs = os.environ.get('MAIL_BCC','').split(',')
+    if bccs[0]:
+        for bcc in bccs:
+            envelope.add_bcc_addr(bcc)
+
+    # send the envelope using an ad-hoc connection...
+    try:
+        _ = envelope.send(
+            os.environ.get('MAIL_SERVER'),
+            port=os.environ.get('MAIL_PORT'),
+            login=os.environ.get('MAIL_LOGIN'),
+            password='zcrkyqvgbxkxnjdg',
+            tls=True
+        )
+    except SMTPException:
+        print("SMTP EMail Error")
+
 
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
@@ -386,11 +443,6 @@ def push_sheet(xlshulls):
     dbg(2,"Hulls Inserted")
     db.close()
 
-
-def mail_results(subject, body):
-    if dbgs:
-        return
-    mail_results_original(subject, body)
 
 @click.command()
 @click.option('--debug', '-d', is_flag=True, help='show debug verbosity/do not'
