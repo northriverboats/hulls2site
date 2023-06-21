@@ -193,7 +193,7 @@ def mail_results(subject, body, attachment=''):
         for bcc in bccs:
             envelope.add_bcc_addr(bcc)
 
-    if attachent:
+    if attachment:
         envelope.add_attachment(attachment)
 
     # send the envelope using an ad-hoc connection...
@@ -237,6 +237,7 @@ def readsheet(xlsfile):
         dbg(3, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
         dbg(3, "Date Finished: {}".format(date_finished))
         # bail after 6 non hull rows, header row counts as non hull
+        print(hull)
         if (hull[:3] != 'NRB'):
             nulls += 1
             if nulls > 6:
