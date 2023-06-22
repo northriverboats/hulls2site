@@ -104,17 +104,17 @@ boat_models = (
     # 27
     "27' SEAHAWK OS",
     # 28
-    "28’ ENDURANCE",
+    "28' ENDURANCE",
     # 29
     "29' SEAHAWK OS",
     "29' SEAHAWK OSWA",
     # 30
-    "30’ ENDURANCE",
+    "30' ENDURANCE",
     # 31
     "31' SEAHAWK OS",
     "31' SEAHAWK OSWA",
     # 32
-    "32’ ENDURANCE",
+    "32' ENDURANCE",
     # 33
     "33' SEAHAWK OS",
     "33' SEAHAWK OSWA",
