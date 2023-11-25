@@ -145,7 +145,7 @@ dbgs = 0
 verbosity = 0
 def dbg(level, text):
     if verbosity > (level -1):
-        print(text)
+        click.echo(text)
 
 
 #### HEAR BE DRAGONS
@@ -212,11 +212,11 @@ def mail_results(subject, body, attachment=''):
             tls=True
         )
     except SMTPException:
-        print("SMTP EMail error")
+        click.echo("SMTP EMail error")
 
 def readsheet(xlsfile):
     # Read boat/dealer/model from spreadsheet
-    print(xlsfile)
+    dbg(1, xlsfile)
     book = open_workbook(xlsfile, formatting_info=True)
     sh = book.sheet_by_index(0)
     wb = copy(book)             # to write to file  wb.save('filename')
@@ -243,7 +243,7 @@ def readsheet(xlsfile):
         dbg(3, "{}\t{}\t{}\t{}\t{}".format(rx, hull, pin, date_finished, date_delivered))
         dbg(3, "Date Finished: {}".format(date_finished))
         # bail after 6 non hull rows, header row counts as non hull
-        print(hull)
+        dbg(1, hull)
         if (hull[:3] != 'NRB'):
             nulls += 1
             if nulls > 6:
@@ -473,9 +473,9 @@ def main(debug, verbose):
 
     if verbosity > 0:
         try:
-            print(f"{xlsfile} is {os.path.getsize(xlsfile)} bytes in size")
+            click.echo(f"{xlsfile} is {os.path.getsize(xlsfile)} bytes in size")
         except OSError as e:
-            print(f"{xlsfile} is not found")
+            click.echo(f"{xlsfile} is not found")
 
     try:
         xlshulls, errors_dealer, errors_boat_model, errors_hull = readsheet(xlsfile)
