@@ -208,7 +208,7 @@ def mail_results(subject, body, attachment=''):
             os.environ.get('MAIL_SERVER'),
             port=os.environ.get('MAIL_PORT'),
             login=os.environ.get('MAIL_LOGIN'),
-            password='zcrkyqvgbxkxnjdg',
+            password=os.environ.get('MAIL_PASSWORD'),
             tls=True
         )
     except SMTPException:
