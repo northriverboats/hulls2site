@@ -57,12 +57,15 @@ boat_models = (
     "20' SCOUT",
     "20' SEAHAWK",
     # 21
+    "21' LE",
     "21' OSPREY",
     "21' PURSUIT",
     "21' SCOUT",
     "21' SEAHAWK FB",
     "21' SEAHAWK",
     "21'6 COMMANDER",
+    "21' COHO",
+    "21' COHO HT",
     # 22
     "22' COMMANDER",
     "22' OSPREY",
@@ -120,12 +123,15 @@ boat_models = (
     "33' SEAHAWK OS",
     "33' SEAHAWK OSWA",
     "33' VOYAGER",
+    #34
+    "34' ENDURANCE",
     # 35
     "35' SEAHAWK OS",
     "35' SEAHAWK OSWA",
     "35' VOYAGER",
     # 37
     "37' VOYAGER",
+    "37' SEAHAWK OS VXL",
 )
 
 pattern = "^NRB (18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|35)\\d{3} [A-L]"
